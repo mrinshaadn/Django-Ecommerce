@@ -1,1 +1,1 @@
-web: gunicorn projo.wsgi --chdir src/projo 
+web: gunicorn projo.wsgi
