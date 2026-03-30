@@ -1,1 +1,1 @@
-web: gunicorn projo.wsgi
+web: cd src/projo && gunicorn projo.wsgi
