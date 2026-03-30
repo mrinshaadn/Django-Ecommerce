@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shopping Cart | Chronos & Co.{% endblock %}
+
+{% block content %}
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400&family=Exo+2:wght@200;300;400;500&display=swap');
+
+:root {
+  --bg:        #faf7f2;
+  --white:     #ffffff;
+  --panel:     #f4f0e8;
+  --gold:      #b8863a;
+  --gold-hi:   #d4a84e;
+  --gold-lo:   #8a6428;
+  --gold-glow: rgba(184,134,58,0.10);
+  --gold-edge: rgba(184,134,58,0.28);
+  --ink:       #1a1208;
+  --silver:    #9a8e78;
+  --border:    rgba(184,134,58,0.14);
+  --red:       #c0263c;
+  --orb:       'Orbitron', sans-serif;
+  --serif:     'Cormorant Garamond', serif;
+  --exo:       'Exo 2', sans-serif;
+  --ease:      cubic-bezier(0.4, 0, 0.2, 1);
+}
+*, *::before, *::after { box-sizing: border-box; }
+
+.cart-page { background: var(--bg); min-height: 80vh; padding: 0 0 72px; }
+
+/* BANNER */
+.cart-banner { background: #0e0a04; padding: 32px 0 26px; position: relative; overflow: hidden; border-bottom: 1px solid var(--border); }
+.cart-banner::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(184,134,58,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(184,134,58,.04) 1px, transparent 1px); background-size: 40px 40px; }
+.cart-banner::after { content: 'CART'; position: absolute; right: -10px; top: 50%; transform: translateY(-50%); font-family: var(--orb); font-size: 110px; font-weight: 900; color: rgba(184,134,58,.04); pointer-events: none; white-space: nowrap; line-height: 1; }
+.cart-banner-inner { position: relative; z-index: 1; text-align: center; }
+.cart-banner-tag { font-family: var(--orb); font-size: 7.5px; font-weight: 600; letter-spacing: 5px; text-transform: uppercase; color: var(--gold-lo); margin-bottom: 8px; display: inline-flex; align-items: center; gap: 12px; }
+.cart-banner-tag::before, .cart-banner-tag::after { content: ''; display: block; width: 32px; height: 1px; background: var(--gold-lo); }
+.cart-banner-title { font-family: var(--serif); font-size: clamp(26px, 4vw, 42px); font-weight: 700; color: #f2ede4; line-height: 1; margin: 0; }
+.cart-banner-title em { font-style: italic; color: var(--gold-hi); }
+.banner-glow { height: 1px; background: linear-gradient(90deg, transparent, var(--gold-lo) 30%, var(--gold-hi) 50%, var(--gold-lo) 70%, transparent); opacity: .4; }
+
+/* EMPTY */
+.cart-empty { text-align: center; padding: 80px 20px; }
+.cart-empty i { font-size: 52px; color: var(--gold-lo); opacity: .3; display: block; margin-bottom: 20px; }
+.cart-empty h2 { font-family: var(--serif); font-style: italic; font-size: 28px; font-weight: 400; color: var(--silver); margin-bottom: 24px; }
+.btn-gold { font-family: var(--orb); font-size: 8px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--ink); background: var(--gold); border: none; padding: 13px 32px; text-decoration: none; display: inline-block; clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%); transition: filter .25s, transform .2s, box-shadow .25s; }
+.btn-gold:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 0 18px rgba(184,134,58,.3); color: var(--ink); }
+
+/* LAYOUT */
+.cart-layout { display: grid; grid-template-columns: 1fr 300px; gap: 24px; margin-top: 36px; align-items: start; }
+
+/* PANEL */
+.cart-panel, .summary-panel { background: var(--white); border: 1px solid var(--border); position: relative; overflow: hidden; animation: fadeUp .5s var(--ease) both; }
+.summary-panel { animation-delay: .1s; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+.cart-panel::before, .summary-panel::before { content: ''; position: absolute; top: 0; right: 0; width: 16px; height: 16px; background: var(--bg); clip-path: polygon(100% 0, 0 0, 100% 100%); z-index: 4; }
+.cart-panel::after, .summary-panel::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-lo) 40%, var(--gold-lo) 60%, transparent); opacity: .3; }
+
+.panel-head { padding: 13px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, rgba(184,134,58,.05) 0%, transparent 60%); }
+.panel-title { font-family: var(--orb); font-size: 8px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); }
+.panel-sub { font-family: var(--orb); font-size: 7px; letter-spacing: 1.5px; color: var(--silver); }
+
+/* TABLE */
+.cart-table { width: 100%; border-collapse: collapse; }
+.cart-table thead tr { border-bottom: 1px solid var(--border); }
+.cart-table thead th { font-family: var(--orb); font-size: 6.5px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--silver); padding: 11px 20px; text-align: left; background: var(--panel); }
+.cart-table thead th.th-right { text-align: right; }
+.cart-table tbody tr { border-bottom: 1px solid var(--border); transition: background .2s; }
+.cart-table tbody tr:last-child { border-bottom: none; }
+.cart-table tbody tr:hover { background: rgba(184,134,58,.025); }
+.cart-table td { padding: 16px 20px; vertical-align: middle; }
+
+/* PRODUCT CELL */
+.cart-product { display: flex; align-items: center; gap: 14px; }
+.cart-img { width: 62px; height: 62px; flex-shrink: 0; border: 1px solid var(--border); background: var(--panel); overflow: hidden; position: relative; }
+.cart-img::after { content: ''; position: absolute; top: 0; right: 0; width: 7px; height: 7px; background: var(--white); clip-path: polygon(100% 0, 0 0, 100% 100%); z-index: 2; }
+.cart-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cart-prod-brand { font-family: var(--orb); font-size: 6px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); display: block; margin-bottom: 3px; }
+.cart-prod-name { font-family: var(--serif); font-size: 15px; font-weight: 600; color: var(--ink); text-decoration: none; display: block; line-height: 1.2; margin-bottom: 4px; transition: color .2s; }
+.cart-prod-name:hover { color: var(--gold); }
+.cart-prod-var { font-family: var(--exo); font-size: 10px; font-weight: 300; color: var(--silver); letter-spacing: .5px; }
+
+/* QTY */
+.qty-wrap { display: inline-flex; align-items: center; border: 1px solid var(--border); overflow: hidden; }
+.qty-btn { width: 30px; height: 30px; background: var(--panel); border: none; outline: none; color: var(--gold); font-size: 9px; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: background .2s, color .2s; }
+.qty-btn:hover { background: var(--gold); color: var(--ink); }
+.qty-num { width: 36px; height: 30px; background: var(--white); border: none; outline: none; font-family: var(--orb); font-size: 11px; font-weight: 600; color: var(--ink); text-align: center; border-left: 1px solid var(--border); border-right: 1px solid var(--border); pointer-events: none; }
+
+/* PRICE */
+.price-main { font-family: var(--orb); font-size: 15px; font-weight: 700; color: var(--ink); display: block; }
+.price-each { font-family: var(--exo); font-size: 9px; font-weight: 300; color: var(--silver); margin-top: 2px; display: block; }
+
+/* REMOVE */
+.btn-rm { font-family: var(--orb); font-size: 6.5px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--red); background: transparent; border: 1px solid rgba(192,38,60,.22); padding: 6px 11px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; float: right; transition: background .2s, border-color .2s; }
+.btn-rm:hover { background: rgba(192,38,60,.07); border-color: rgba(192,38,60,.45); color: var(--red); }
+
+/* SUMMARY */
+.summary-body { padding: 18px 22px; }
+.sum-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid rgba(184,134,58,.08); }
+.sum-row:last-of-type { border-bottom: none; }
+.sum-label { font-family: var(--orb); font-size: 7px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--silver); }
+.sum-val { font-family: var(--exo); font-size: 13px; color: var(--ink); }
+.sum-total-row { display: flex; justify-content: space-between; align-items: center; padding: 13px 0 16px; border-top: 1px solid var(--border); margin-top: 4px; }
+.sum-total-label { font-family: var(--orb); font-size: 7.5px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--ink); }
+.sum-total-val { font-family: var(--orb); font-size: 22px; font-weight: 700; color: var(--ink); }
+.pay-row { text-align: center; padding: 10px 0 14px; border-top: 1px solid var(--border); }
+.pay-row img { opacity: .5; filter: grayscale(1); }
+
+/* BUTTONS */
+.btn-checkout { width: 100%; background: var(--gold); border: none; font-family: var(--orb); font-size: 8px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--ink); padding: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; clip-path: polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 0 100%); transition: filter .25s, box-shadow .25s, transform .2s; position: relative; overflow: hidden; margin-bottom: 8px; }
+.btn-checkout::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,.1) 0%, transparent 50%); pointer-events: none; }
+.btn-checkout:hover { filter: brightness(1.1); box-shadow: 0 0 20px rgba(184,134,58,.32); transform: translateY(-1px); color: var(--ink); }
+.btn-continue { width: 100%; background: transparent; border: 1px solid var(--border); font-family: var(--orb); font-size: 7.5px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: var(--silver); padding: 11px; display: block; text-align: center; text-decoration: none; transition: border-color .2s, color .2s; }
+.btn-continue:hover { border-color: var(--gold-edge); color: var(--gold); }
+
+@media (max-width: 991px) { .cart-layout { grid-template-columns: 1fr; } }
+@media (max-width: 575px) { .cart-table thead { display: none; } .cart-table td { display: block; padding: 10px 16px; border-bottom: 1px solid var(--border); } .btn-rm { float: none; } }
+</style>
+
+
+<div class="cart-banner">
+  <div class="container">
+    <div class="cart-banner-inner">
+      <div class="cart-banner-tag">Your Order</div>
+      <h1 class="cart-banner-title">Shopping <em>Cart</em></h1>
+    </div>
+  </div>
+</div>
+<div class="banner-glow"></div>
+
+<div class="cart-page">
+  <div class="container">
+
+    {% if not cart_items %}
+    <div class="cart-empty">
+      <i class="fas fa-shopping-bag"></i>
+      <h2>Your cart is empty</h2>
+      <a href="{% url 'store' %}" class="btn-gold">
+        <i class="fas fa-store" style="margin-right:7px;font-size:9px;"></i>Browse Collection
+      </a>
+    </div>
+
+    {% else %}
+    <div class="cart-layout">
+
+      <!-- ITEMS TABLE -->
+      <div class="cart-panel">
+        <div class="panel-head">
+          <span class="panel-title">// Cart Items</span>
+          <span class="panel-sub">{{ cart_items|length }} item(s)</span>
+        </div>
+        <table class="cart-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th style="width:130px;">Quantity</th>
+              <th style="width:130px;">Price</th>
+              <th class="th-right" style="width:110px;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for cartitem in cart_items %}
+            <tr>
+              <td>
+                <div class="cart-product">
+                  <div class="cart-img">
+                    {% if cartitem.product.images.first %}
+                      <img src="{{ cartitem.product.images.first.image.url }}" alt="{{ cartitem.product.name }}">
+                    {% endif %}
+                  </div>
+                  <div>
+                    <span class="cart-prod-brand">{{ cartitem.product.brand }}</span>
+                    <a href="{{ cartitem.product.get_url }}" class="cart-prod-name">{{ cartitem.product.name }}</a>
+                    {% if cartitem.variations.all %}
+                    <span class="cart-prod-var">
+                      {% for item in cartitem.variations.all %}{{ item.variation_category }}: {{ item.variation_value }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                    </span>
+                    {% endif %}
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="qty-wrap">
+                  <a href="{% url 'remove_cart' cartitem.product.id %}" class="qty-btn"><i class="fa fa-minus"></i></a>
+                  <input type="text" class="qty-num" value="{{ cartitem.quantity }}" readonly>
+                  <a href="{% url 'add_cart' cartitem.product.id %}" class="qty-btn"><i class="fa fa-plus"></i></a>
+                </div>
+              </td>
+              <td>
+                <span class="price-main">&#8377;{{ cartitem.sub_total }}</span>
+                <span class="price-each">&#8377;{{ cartitem.product.price }} each</span>
+              </td>
+              <td>
+                <a href="{% url 'remove_cart_item' cartitem.product.id %}" class="btn-rm">
+                  <i class="fas fa-times"></i> Remove
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- SUMMARY -->
+      <div class="summary-panel">
+        <div class="panel-head">
+          <span class="panel-title">// Order Summary</span>
+        </div>
+        <div class="summary-body">
+          <div class="sum-row">
+            <span class="sum-label">Subtotal</span>
+            <span class="sum-val">&#8377;{{ total }}</span>
+          </div>
+          <div class="sum-row">
+            <span class="sum-label">Tax</span>
+            <span class="sum-val">&#8377;{{ tax }}</span>
+          </div>
+          <div class="sum-total-row">
+            <span class="sum-total-label">Grand Total</span>
+            <span class="sum-total-val">&#8377;{{ grand_total }}</span>
+          </div>
+          <div class="pay-row">
+            <img src="{% static './images/misc/payments.png' %}" height="22" alt="Payments">
+          </div>
+          <a href="./place-order.html" class="btn-checkout">
+            <i class="fas fa-lock" style="font-size:9px;"></i> Proceed to Checkout
+          </a>
+          <a href="{% url 'store' %}" class="btn-continue">&#8592; Continue Shopping</a>
+        </div>
+      </div>
+
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}

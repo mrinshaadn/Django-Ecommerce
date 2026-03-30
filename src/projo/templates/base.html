@@ -1,0 +1,889 @@
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Chronos & Co.{% endblock %}</title>
+
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Raleway:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'fonts/fontawesome/css/all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/ui.css' %}">
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+
+    <style>
+        /* ─── TOKENS ─────────────────────────────── */
+        :root {
+            --ink:        #0c0c0e;
+            --ink-2:      #161618;
+            --ink-3:      #1e1e22;
+            --gold:       #b8963e;
+            --gold-hi:    #d4af5a;
+            --gold-lo:    #7a6128;
+            --silver:     #a0a09a;
+            --off-white:  #f2ede4;
+            --border:     rgba(184,150,62,0.15);
+            --border-hi:  rgba(184,150,62,0.40);
+            --serif:      'Playfair Display', serif;
+            --sans:       'Raleway', sans-serif;
+            --ease:       cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: #f2ede4;
+            font-family: var(--sans);
+            color: var(--ink);
+        }
+
+        /* ─── ANNOUNCEMENT ───────────────────────── */
+        .ticker-wrap {
+            background: var(--gold);
+            overflow: hidden;
+            height: 32px;
+            display: flex;
+            align-items: center;
+        }
+        .ticker-track {
+            display: flex;
+            gap: 80px;
+            white-space: nowrap;
+            animation: ticker 28s linear infinite;
+        }
+        .ticker-track span {
+            font-family: var(--sans);
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--ink);
+        }
+        .ticker-track span i { margin: 0 6px; opacity: .5; font-size: 6px; vertical-align: middle; }
+        @keyframes ticker {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* ─── HEADER SHELL ───────────────────────── */
+        .site-header {
+            background: var(--ink);
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* ─── TOP ROW ────────────────────────────── */
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 0;
+            height: 72px;
+        }
+
+        /* ─── WORDMARK (no image) ─────────────────── */
+        .wordmark {
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1px;
+            position: relative;
+            padding-left: 16px;
+        }
+        .wordmark::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 4px;
+            bottom: 4px;
+            width: 3px;
+            background: linear-gradient(to bottom, var(--gold-hi), var(--gold-lo));
+            border-radius: 2px;
+        }
+        .wm-main {
+            font-family: var(--serif);
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--off-white);
+            line-height: 1;
+            transition: color .3s var(--ease);
+        }
+        .wm-main em {
+            font-style: italic;
+            color: var(--gold-hi);
+        }
+        .wm-sub {
+            font-family: var(--sans);
+            font-size: 8px;
+            font-weight: 300;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: var(--silver);
+            line-height: 1;
+        }
+        .wordmark:hover .wm-main { color: var(--gold-hi); }
+
+        /* ─── CENTRE SEARCH ──────────────────────── */
+        .search-field {
+            flex: 1;
+            max-width: 420px;
+            margin: 0 40px;
+        }
+        .search-field form {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--border);
+            border-radius: 0;
+            background: var(--ink-3);
+            transition: border-color .3s var(--ease);
+            position: relative;
+        }
+        .search-field form:focus-within { border-color: var(--gold-lo); }
+        .search-field input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-family: var(--sans);
+            font-size: 11px;
+            font-weight: 300;
+            letter-spacing: 1.5px;
+            color: var(--off-white);
+            padding: 11px 16px;
+        }
+        .search-field input::placeholder { color: var(--silver); }
+        .search-field button {
+            background: transparent;
+            border: none;
+            border-left: 1px solid var(--border);
+            color: var(--gold);
+            padding: 11px 16px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: color .25s;
+        }
+        .search-field button:hover { color: var(--gold-hi); }
+
+        /* ─── RIGHT CLUSTER ──────────────────────── */
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* auth block */
+        .auth-block {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            margin-right: 6px;
+        }
+        .auth-greet {
+            font-family: var(--serif);
+            font-style: italic;
+            font-size: 12px;
+            color: var(--silver);
+            line-height: 1;
+            margin-bottom: 3px;
+        }
+        .auth-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .auth-link {
+            font-family: var(--sans);
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--off-white);
+            text-decoration: none;
+            transition: color .25s;
+        }
+        .auth-link:hover { color: var(--gold-hi); }
+        .auth-sep { color: var(--border-hi); font-size: 10px; }
+
+        /* icon buttons */
+        .icon-btn {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--silver);
+            font-size: 13px;
+            text-decoration: none;
+            cursor: pointer;
+            position: relative;
+            transition: border-color .25s, color .25s, background .25s;
+        }
+        .icon-btn:hover {
+            border-color: var(--gold);
+            color: var(--gold-hi);
+            background: rgba(184,150,62,0.06);
+        }
+        .icon-btn .badge {
+            position: absolute;
+            top: -5px; right: -5px;
+            background: var(--gold);
+            color: var(--ink);
+            font-family: var(--sans);
+            font-size: 8px;
+            font-weight: 700;
+            width: 16px; height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* store pill */
+        .store-btn {
+            font-family: var(--sans);
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--ink) !important;
+            background: linear-gradient(135deg, var(--gold-hi) 0%, var(--gold) 100%);
+            border: none;
+            padding: 9px 20px;
+            text-decoration: none;
+            display: inline-block;
+            transition: filter .25s, transform .2s;
+        }
+        .store-btn:hover { filter: brightness(1.12); transform: translateY(-1px); }
+
+        /* ─── ORNAMENT DIVIDER ───────────────────── */
+        .ornament-bar {
+            height: 1px;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                var(--gold-lo) 20%,
+                var(--gold-hi) 50%,
+                var(--gold-lo) 80%,
+                transparent 100%);
+            opacity: .5;
+        }
+
+        /* ─── NAV BAR ────────────────────────────── */
+        .nav-bar {
+            background: var(--ink-2);
+        }
+        .nav-bar .inner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0;
+        }
+        .nav-bar a {
+            font-family: var(--sans);
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--silver);
+            text-decoration: none;
+            padding: 14px 26px;
+            display: block;
+            position: relative;
+            transition: color .25s;
+        }
+        .nav-bar a::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 50%; right: 50%;
+            height: 2px;
+            background: var(--gold);
+            transition: left .3s var(--ease), right .3s var(--ease);
+        }
+        .nav-bar a:hover { color: var(--off-white); }
+        .nav-bar a:hover::after { left: 20px; right: 20px; }
+
+        /* nav separator diamonds */
+        .nav-sep {
+            color: var(--gold-lo);
+            font-size: 6px;
+            pointer-events: none;
+            opacity: .7;
+        }
+
+        /* ─── LOAD ANIMATION ─────────────────────── */
+        .site-header {
+            animation: headerIn .6s var(--ease) both;
+        }
+        @keyframes headerIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ─── FOOTER ─────────────────────────────── */
+        .site-footer {
+            background: var(--ink);
+            border-top: 1px solid var(--border);
+            font-family: var(--sans);
+        }
+
+        .footer-crown {
+            text-align: center;
+            padding: 48px 0 0;
+        }
+        .footer-crown-name {
+            font-family: var(--serif);
+            font-size: 42px;
+            font-weight: 700;
+            color: var(--off-white);
+            letter-spacing: 2px;
+        }
+        .footer-crown-name em { font-style: italic; color: var(--gold); }
+        .footer-crown-rule {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin: 14px 0 40px;
+        }
+        .footer-crown-rule span {
+            height: 1px;
+            width: 80px;
+            background: linear-gradient(90deg, transparent, var(--gold-lo));
+        }
+        .footer-crown-rule span:last-child {
+            background: linear-gradient(90deg, var(--gold-lo), transparent);
+        }
+        .footer-crown-rule i { color: var(--gold); font-size: 10px; }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0;
+            border-top: 1px solid var(--border);
+            border-left: 1px solid var(--border);
+        }
+        .footer-col {
+            padding: 36px 32px;
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .footer-col-label {
+            font-size: 8px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 20px;
+        }
+
+        .footer-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .footer-links a {
+            font-size: 12px;
+            font-weight: 300;
+            letter-spacing: .5px;
+            color: var(--silver);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color .25s, gap .25s;
+        }
+        .footer-links a::before {
+            content: '';
+            width: 12px;
+            height: 1px;
+            background: var(--gold-lo);
+            flex-shrink: 0;
+            transition: width .25s;
+        }
+        .footer-links a:hover { color: var(--off-white); gap: 12px; }
+        .footer-links a:hover::before { width: 18px; background: var(--gold); }
+
+        .footer-contact-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 12px;
+            font-weight: 300;
+            color: var(--silver);
+            line-height: 1.7;
+            margin-bottom: 12px;
+        }
+        .footer-contact-item i {
+            color: var(--gold-lo);
+            font-size: 11px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .footer-about-text {
+            font-size: 12px;
+            font-weight: 300;
+            line-height: 1.9;
+            color: var(--silver);
+            font-style: italic;
+        }
+
+        .social-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 20px;
+        }
+        .social-btn {
+            width: 34px; height: 34px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--silver);
+            font-size: 12px;
+            text-decoration: none;
+            transition: all .25s;
+        }
+        .social-btn:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: rgba(184,150,62,.07);
+        }
+
+        .newsletter-row {
+            display: flex;
+            margin-top: 16px;
+            border: 1px solid var(--border);
+        }
+        .newsletter-row input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-family: var(--sans);
+            font-size: 11px;
+            font-weight: 300;
+            color: var(--off-white);
+            padding: 10px 14px;
+            letter-spacing: .5px;
+        }
+        .newsletter-row input::placeholder { color: var(--silver); }
+        .newsletter-row button {
+            background: var(--gold);
+            border: none;
+            color: var(--ink);
+            font-family: var(--sans);
+            font-size: 8px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: filter .25s;
+        }
+        .newsletter-row button:hover { filter: brightness(1.12); }
+
+        .footer-base {
+            padding: 20px 0;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .footer-copy {
+            font-size: 11px;
+            font-weight: 300;
+            color: var(--silver);
+            letter-spacing: .5px;
+        }
+        .footer-copy strong { color: var(--gold-lo); font-weight: 400; }
+        .footer-legal {
+            display: flex;
+            gap: 24px;
+        }
+        .footer-legal a {
+            font-size: 10px;
+            font-weight: 300;
+            letter-spacing: 1px;
+            color: var(--silver);
+            text-decoration: none;
+            transition: color .25s;
+        }
+        .footer-legal a:hover { color: var(--gold); }
+
+        /* ─── MAIN CONTENT ───────────────────────── */
+        main { min-height: 60vh; }
+
+        /* ─── RESPONSIVE ─────────────────────────── */
+        @media (max-width: 992px) {
+            .search-field { display: none; }
+            .nav-bar .inner { justify-content: flex-start; overflow-x: auto; scrollbar-width: none; }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 600px) {
+            .wm-main { font-size: 20px; }
+            .footer-grid { grid-template-columns: 1fr; }
+            .footer-base { flex-direction: column; gap: 10px; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     TICKER STRIP
+══════════════════════════════════════════════ -->
+<div class="ticker-wrap" aria-hidden="true">
+    <div class="ticker-track">
+        <!-- doubled for seamless loop -->
+        <span>Free shipping above ₹5,000 <i class="fas fa-circle"></i></span>
+        <span>New arrivals — Swiss Collection 2026 <i class="fas fa-circle"></i></span>
+        <span>Certified pre-owned timepieces <i class="fas fa-circle"></i></span>
+        <span>2-year international warranty <i class="fas fa-circle"></i></span>
+        <span>Free shipping above ₹5,000 <i class="fas fa-circle"></i></span>
+        <span>New arrivals — Swiss Collection 2026 <i class="fas fa-circle"></i></span>
+        <span>Certified pre-owned timepieces <i class="fas fa-circle"></i></span>
+        <span>2-year international warranty <i class="fas fa-circle"></i></span>
+    </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     MAIN HEADER
+══════════════════════════════════════════════ -->
+<header class="site-header">
+    <div class="container">
+        <div class="header-top">
+
+            <!-- WORDMARK -->
+            <a href="{% url 'home' %}" class="wordmark">
+                <span class="wm-main">Chronos<em>&amp;</em>Co.</span>
+                <span class="wm-sub">Fine Timepieces · Est. 2020</span>
+            </a>
+
+            <!-- SEARCH -->
+            <div class="search-field">
+                <form action="{% url 'search' %}" method="GET">
+                    <input type="text" name="keyword" placeholder="Search timepieces, brands…">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+
+            <!-- RIGHT CLUSTER -->
+            <div class="header-right">
+
+                <!-- auth -->
+                <div class="auth-block">
+                    {% if user.id is None %}
+                    <span class="auth-greet">Welcome</span>
+                    <div class="auth-actions">
+                        <a href="{% url 'login' %}" class="auth-link">Sign in</a>
+                        <span class="auth-sep">·</span>
+                        <a href="{% url 'register' %}" class="auth-link">Register</a>
+                    </div>
+                    {% else %}
+                    <span class="auth-greet">{{ user.first_name }}</span>
+                    <div class="auth-actions">
+                        <a href="#" class="auth-link">Dashboard</a>
+                        <span class="auth-sep">·</span>
+                        <a href="{% url 'logout' %}" class="auth-link">Logout</a>
+                    </div>
+                    {% endif %}
+                </div>
+                 <a href="{% url 'wishlist' %}" class="icon-btn" title="Wishlist" style="position:relative;">
+        <i class="far fa-heart"></i>
+        {% if wishlist_count > 0 %}
+        <span id="wishlist-count" class="badge"
+              style="position:absolute;top:-5px;right:-5px;background:#e8334a;color:#fff;
+                     font-family:'Orbitron',sans-serif;font-size:7px;font-weight:700;
+                     width:16px;height:16px;border-radius:50%;
+                     display:flex;align-items:center;justify-content:center;">
+            {{ wishlist_count }}
+        </span>
+        {% else %}
+        <span id="wishlist_count"
+              style="display:none;position:absolute;top:-5px;right:-5px;background:#e8334a;
+                     color:#fff;font-family:'Orbitron',sans-serif;font-size:7px;font-weight:700;
+                     width:16px;height:16px;border-radius:50%;
+                     align-items:center;justify-content:center;">0</span>
+        {% endif %}
+    </a>
+
+                <!-- mobile search -->
+                <button class="icon-btn d-md-none"><i class="fas fa-search"></i></button>
+
+                <!-- wishlist -->
+<!--                <a href="#" class="icon-btn" title="Wishlist"><i class="far fa-heart"></i></a>-->
+
+                <!-- cart -->
+                <a href="{% url 'cart' %}" class="icon-btn" title="Cart">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="badge">{{ cart_count }}</span>
+                </a>
+
+                <!-- store CTA -->
+                <a href="{% url 'store' %}" class="store-btn">Store</a>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- gold rule -->
+    <div class="ornament-bar"></div>
+
+    <!-- category nav -->
+    <nav class="nav-bar" aria-label="Categories">
+        <div class="container">
+            <div class="inner">
+                <a href="#">Men's</a>
+                <span class="nav-sep">✦</span>
+                <a href="#">Women's</a>
+                <span class="nav-sep">✦</span>
+                <a href="#">Luxury</a>
+                <span class="nav-sep">✦</span>
+                <a href="#">Sport</a>
+                <span class="nav-sep">✦</span>
+                <a href="#">Smart</a>
+                <span class="nav-sep">✦</span>
+                <a href="#">Accessories</a>
+                <span class="nav-sep">✦</span>
+                <a href="#">New Arrivals</a>
+                <span class="nav-sep">✦</span>
+                <a href="#">Offers</a>
+            </div>
+        </div>
+    </nav>
+</header>
+
+
+<!-- ══════════════════════════════════════════════
+     PAGE CONTENT
+══════════════════════════════════════════════ -->
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+
+<!-- ══════════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════════ -->
+<footer class="site-footer">
+
+    <!-- Crown wordmark -->
+    <div class="footer-crown">
+        <div class="footer-crown-name">Chronos<em>&amp;</em>Co.</div>
+        <div class="footer-crown-rule">
+            <span></span>
+            <i class="fas fa-circle"></i>
+            <i class="fas fa-circle" style="font-size:14px;"></i>
+            <i class="fas fa-circle"></i>
+            <span></span>
+        </div>
+    </div>
+
+    <!-- 4-col grid -->
+    <div class="container">
+        <div class="footer-grid">
+
+            <!-- Brand -->
+            <div class="footer-col">
+                <div class="footer-col-label">Our Story</div>
+                <p class="footer-about-text">
+                    Curating extraordinary timepieces for those who understand that a watch is not merely an instrument — it is a statement of character, crafted to last generations.
+                </p>
+                <div class="social-row">
+                    <a href="#" class="social-btn"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-btn"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-btn"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-btn"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="footer-col">
+                <div class="footer-col-label">Discover</div>
+                <ul class="footer-links">
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a href="{% url 'store' %}">Store</a></li>
+                    <li><a href="#">New Arrivals</a></li>
+                    <li><a href="#">Brands</a></li>
+                    <li><a href="#">Men's Collection</a></li>
+                    <li><a href="#">Women's Collection</a></li>
+                </ul>
+            </div>
+
+            <!-- Help -->
+            <div class="footer-col">
+                <div class="footer-col-label">Support</div>
+                <ul class="footer-links">
+                    <li><a href="#">My Account</a></li>
+                    <li><a href="#">Track Order</a></li>
+                    <li><a href="#">Returns &amp; Exchange</a></li>
+                    <li><a href="#">Warranty</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                </ul>
+            </div>
+
+            <!-- Contact & Newsletter -->
+            <div class="footer-col">
+                <div class="footer-col-label">Contact</div>
+                <div class="footer-contact-item"><i class="fas fa-map-marker-alt"></i>Kozhikode, Kerala, India</div>
+                <div class="footer-contact-item"><i class="fas fa-phone"></i>+91-939-332-9375</div>
+                <div class="footer-contact-item"><i class="fas fa-envelope"></i>info@chronosco.io</div>
+
+                <div class="footer-col-label" style="margin-top:24px">Newsletter</div>
+                <div class="newsletter-row">
+                    <input type="email" placeholder="Your email address">
+                    <button>Subscribe</button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Base bar -->
+        <div class="footer-base">
+            <p class="footer-copy">© 2026 <strong>Chronos &amp; Co.</strong> — All rights reserved.</p>
+            <nav class="footer-legal">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Use</a>
+                <a href="#">Cookies</a>
+            </nav>
+        </div>
+    </div>
+
+</footer>
+
+
+<!-- JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'js/script.js' %}"></script>
+<script>
+(function () {
+  'use strict';
+
+  function getCookie(name) {
+    let v = null;
+    document.cookie.split(';').forEach(c => {
+      c = c.trim();
+      if (c.startsWith(name + '=')) v = decodeURIComponent(c.slice(name.length + 1));
+    });
+    return v;
+  }
+
+  function handleWishToggle(btn) {
+    const url = btn.dataset.url;
+
+    // ── DEBUG: url ഉണ്ടോ check ──
+    if (!url) {
+      console.error('Wishlist: data-url missing on button', btn);
+      return;
+    }
+
+    console.log('Wishlist toggle:', url);   // ← check this in console
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken'),
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+    })
+    .then(res => {
+      console.log('Response status:', res.status);   // ← check this
+      return res.json();
+    })
+    .then(data => {
+      console.log('Response data:', data);   // ← check this
+      const icon = btn.querySelector('i');
+      if (data.status === 'added') {
+        icon.classList.remove('far');
+        icon.classList.add('fas');
+        icon.style.color = '#e8334a';
+        btn.style.borderColor = 'rgba(232,51,74,0.4)';
+        btn.title = 'Remove from Wishlist';
+        showToast('Added to Wishlist ❤️');
+      } else {
+        icon.classList.remove('fas');
+        icon.classList.add('far');
+        icon.style.color = '';
+        btn.style.borderColor = '';
+        btn.title = 'Add to Wishlist';
+        showToast('Removed from Wishlist');
+        const card = btn.closest('.wish-card, .prod-card, article');
+        if (card && window.location.pathname.includes('wishlist')) {
+          card.style.transition = 'opacity .4s,transform .4s';
+          card.style.opacity = '0';
+          card.style.transform = 'scale(.95)';
+          setTimeout(() => card.remove(), 420);
+        }
+      }
+      const countEl = document.getElementById('wishlist-count');
+      if (countEl) {
+        countEl.textContent = data.count;
+        countEl.style.display = data.count > 0 ? 'flex' : 'none';
+      }
+    })
+    .catch(err => {
+      console.error('Wishlist fetch error:', err);
+      // login check
+      window.location.href = '/login/?next=' + window.location.pathname;
+    });
+  }
+
+  function showToast(msg) {
+    let toast = document.getElementById('wish-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'wish-toast';
+      toast.style.cssText = [
+        'position:fixed', 'bottom:28px', 'left:50%',
+        'transform:translateX(-50%) translateY(20px)',
+        'background:#0e0a04', 'color:#f2ede4',
+        "border:1px solid rgba(184,134,58,.35)",
+        "font-family:'Orbitron',sans-serif",
+        'font-size:9px', 'letter-spacing:2px',
+        'padding:12px 24px', 'z-index:99999',
+        'opacity:0', 'transition:opacity .3s,transform .3s',
+        'pointer-events:none', 'white-space:nowrap'
+      ].join(';');
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateX(-50%) translateY(0)';
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(-50%) translateY(20px)';
+    }, 2400);
+  }
+
+  // ── EVENT LISTENER ──
+  document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.wish-toggle-btn');
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    handleWishToggle(btn);
+  });
+
+  // ── CONFIRM JS LOADED ──
+  console.log('✅ Wishlist JS loaded');
+
+})();
+</script>
+
+
+</body>
+</html>

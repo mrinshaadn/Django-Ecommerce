@@ -1,0 +1,383 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Account | Chronos & Co.{% endblock %}
+
+{% block content %}
+
+<style>
+  .register-page {
+    min-height: 84vh;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* grid background */
+  .register-page::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(184,134,58,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(184,134,58,.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+  }
+
+  /* glow orb */
+  .register-page::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 200px;
+    background: radial-gradient(ellipse, rgba(184,134,58,.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* ── WRAP ── */
+  .register-wrap {
+    position: relative; z-index: 1;
+    width: 100%;
+    max-width: 540px;
+    animation: fadeUp .5s var(--ease) both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* brand mark */
+  .reg-brand {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .reg-brand-name {
+    font-family: var(--serif);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 1px;
+  }
+  .reg-brand-name em { font-style: italic; color: var(--gold-hi); }
+  .reg-brand-rule {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .reg-brand-rule span {
+    height: 1px; width: 48px;
+    background: linear-gradient(90deg, transparent, var(--gold-lo));
+  }
+  .reg-brand-rule span:last-child {
+    background: linear-gradient(90deg, var(--gold-lo), transparent);
+  }
+  .reg-brand-rule i { color: var(--gold-lo); font-size: 6px; }
+
+  /* ── CARD ── */
+  .reg-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .reg-card::before {
+    content: '';
+    position: absolute; top: 0; right: 0;
+    width: 18px; height: 18px;
+    background: var(--bg);
+    clip-path: polygon(100% 0, 0 0, 100% 100%);
+  }
+
+  .reg-card-head {
+    padding: 26px 32px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .reg-card-title {
+    font-family: var(--orb);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .reg-card-sub {
+    font-family: var(--exo);
+    font-size: 11px;
+    font-weight: 300;
+    color: var(--silver);
+    letter-spacing: .5px;
+  }
+
+  .reg-card-body { padding: 28px 32px 32px; }
+
+  /* ── FORM FIELDS ── */
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .field-group { margin-bottom: 16px; }
+  .field-group.no-mb { margin-bottom: 0; }
+
+  .field-label {
+    font-family: var(--orb);
+    font-size: 7px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--silver);
+    display: block;
+    margin-bottom: 7px;
+  }
+
+  /* override Django form widget styles */
+  .field-group input,
+  .field-group select,
+  .reg-card-body input[type="text"],
+  .reg-card-body input[type="email"],
+  .reg-card-body input[type="password"],
+  .reg-card-body input[type="tel"],
+  .reg-card-body select {
+    width: 100% !important;
+    background: var(--bg-3) !important;
+    border: 1px solid var(--border) !important;
+    outline: none !important;
+    font-family: var(--exo) !important;
+    font-size: 12px !important;
+    font-weight: 300 !important;
+    letter-spacing: .5px !important;
+    color: var(--text) !important;
+    padding: 11px 14px !important;
+    transition: border-color .25s !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+  .reg-card-body input:focus,
+  .reg-card-body select:focus {
+    border-color: var(--gold-lo) !important;
+    box-shadow: none !important;
+  }
+  .reg-card-body input::placeholder { color: var(--silver) !important; }
+
+  /* ── DIVIDER ── */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0 18px;
+  }
+  .section-divider span { flex: 1; height: 1px; background: var(--border); }
+  .section-divider p {
+    font-family: var(--orb);
+    font-size: 7px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--silver);
+    white-space: nowrap;
+  }
+
+  /* ── ERRORS ── */
+  .form-errors {
+    margin-top: 4px;
+  }
+  .form-errors ul {
+    list-style: none;
+    padding: 0; margin: 0;
+  }
+  .form-errors li {
+    font-family: var(--exo);
+    font-size: 10px;
+    color: #f0a0a8;
+    letter-spacing: .3px;
+    padding: 3px 0;
+  }
+  .errorlist {
+    list-style: none;
+    padding: 0; margin: 4px 0 0;
+  }
+  .errorlist li {
+    font-family: var(--exo);
+    font-size: 10px;
+    color: #f0a0a8;
+    letter-spacing: .3px;
+  }
+
+  /* ── SUBMIT BUTTON ── */
+  .btn-register {
+    width: 100%;
+    background: var(--gold);
+    border: none;
+    font-family: var(--orb);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--bg);
+    padding: 13px;
+    cursor: pointer;
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+    transition: filter .25s, box-shadow .25s;
+    margin-top: 6px;
+  }
+  .btn-register:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 0 20px rgba(184,134,58,.3);
+  }
+
+  /* ── LOGIN LINK ── */
+  .login-link {
+    text-align: center;
+    margin-top: 20px;
+  }
+  .login-link p {
+    font-family: var(--exo);
+    font-size: 12px;
+    font-weight: 300;
+    color: var(--silver);
+  }
+  .login-link a {
+    color: var(--gold);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color .2s;
+  }
+  .login-link a:hover { color: var(--gold-hi); }
+
+  /* password strength hint */
+  .field-hint {
+    font-family: var(--exo);
+    font-size: 10px;
+    font-weight: 300;
+    color: var(--silver);
+    margin-top: 5px;
+    letter-spacing: .3px;
+  }
+
+  @media (max-width: 500px) {
+    .field-row { grid-template-columns: 1fr; }
+    .reg-card-body { padding: 22px 20px 24px; }
+    .reg-card-head { padding: 20px 20px 16px; flex-direction: column; align-items: flex-start; gap: 4px; }
+  }
+</style>
+
+
+<section class="register-page">
+  <div class="register-wrap">
+
+    <!-- brand -->
+    <div class="reg-brand">
+      <div class="reg-brand-name">Chronos<em>&amp;</em>Co.</div>
+      <div class="reg-brand-rule">
+        <span></span>
+        <i class="fas fa-circle"></i>
+        <span></span>
+      </div>
+    </div>
+
+    <div class="reg-card">
+
+      <div class="reg-card-head">
+        <div>
+          <div class="reg-card-title">// Create Account</div>
+          <div class="reg-card-sub" style="margin-top:4px;">Join us — your collection awaits</div>
+        </div>
+        <i class="fas fa-user-plus" style="color:var(--gold-lo);font-size:20px;opacity:.6;"></i>
+      </div>
+
+      <div class="reg-card-body">
+
+        {% include 'alert.html' %}
+
+        <form action="{% url 'register' %}" method="POST" novalidate>
+          {% csrf_token %}
+
+          <!-- Name row -->
+          <div class="field-row">
+            <div class="field-group no-mb">
+              <label class="field-label">First Name</label>
+              {{ form.first_name }}
+              {{ form.first_name.errors }}
+            </div>
+            <div class="field-group no-mb">
+              <label class="field-label">Last Name</label>
+              {{ form.last_name }}
+              {{ form.last_name.errors }}
+            </div>
+          </div>
+
+          <div class="section-divider">
+            <span></span><p>Contact</p><span></span>
+          </div>
+
+          <!-- Email -->
+          <div class="field-group">
+            <label class="field-label">Email Address</label>
+            {{ form.email }}
+            {{ form.email.errors }}
+          </div>
+
+          <!-- Phone -->
+          <div class="field-group">
+            <label class="field-label">Phone Number</label>
+            {{ form.phone_number }}
+            {{ form.phone_number.errors }}
+          </div>
+
+          <div class="section-divider">
+            <span></span><p>Security</p><span></span>
+          </div>
+
+          <!-- Passwords row -->
+          <div class="field-row">
+            <div class="field-group no-mb">
+              <label class="field-label">Create Password</label>
+              {{ form.password }}
+              {{ form.password.errors }}
+            </div>
+            <div class="field-group no-mb">
+              <label class="field-label">Confirm Password</label>
+              {{ form.repeat_password }}
+              {{ form.repeat_password.errors }}
+            </div>
+          </div>
+          <p class="field-hint">Use 8+ characters with a mix of letters and numbers.</p>
+
+          <!-- Non-field errors -->
+          {% if form.non_field_errors %}
+          <div style="margin-top:14px;">
+            {% for error in form.non_field_errors %}
+              <p style="font-family:var(--exo);font-size:11px;color:#f0a0a8;padding:8px 12px;background:rgba(208,38,60,.08);border-left:2px solid #d0263c;margin-bottom:6px;">
+                {{ error }}
+              </p>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          <button type="submit" class="btn-register">
+            <i class="fas fa-user-plus" style="margin-right:7px;"></i>Create Account
+          </button>
+
+        </form>
+
+        <div class="login-link">
+          <p>Already have an account? <a href="{% url 'login' %}">Sign in →</a></p>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}

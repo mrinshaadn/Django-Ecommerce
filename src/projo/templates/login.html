@@ -1,0 +1,379 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sign In | Chronos & Co.{% endblock %}
+
+{% block content %}
+
+<style>
+  .login-page {
+    min-height: 84vh;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* subtle grid background */
+  .login-page::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(184,134,58,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(184,134,58,.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+  }
+
+  /* glow orb at bottom */
+  .login-page::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: 50%;
+    transform: translateX(-50%);
+    width: 500px; height: 200px;
+    background: radial-gradient(ellipse, rgba(184,134,58,.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* ── VERIFICATION ALERT ── */
+  .verify-box {
+    position: relative; z-index: 1;
+    max-width: 520px; width: 100%;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    padding: 40px 36px;
+    text-align: center;
+    animation: fadeUp .5s var(--ease) both;
+  }
+  .verify-box i {
+    font-size: 36px;
+    color: var(--gold);
+    display: block;
+    margin-bottom: 18px;
+  }
+  .verify-title {
+    font-family: var(--serif);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  .verify-msg {
+    font-family: var(--exo);
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--silver);
+    line-height: 1.8;
+    margin-bottom: 24px;
+  }
+  .verify-email {
+    color: var(--gold);
+    font-weight: 500;
+  }
+  .verify-login {
+    font-family: var(--orb);
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--bg);
+    background: var(--gold);
+    padding: 11px 28px;
+    text-decoration: none;
+    display: inline-block;
+    clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 0 100%);
+    transition: filter .25s;
+  }
+  .verify-login:hover { filter: brightness(1.12); color: var(--bg); }
+
+  /* ── LOGIN CARD ── */
+  .login-wrap {
+    position: relative; z-index: 1;
+    width: 100%;
+    max-width: 400px;
+    animation: fadeUp .5s var(--ease) both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* card top brand */
+  .login-brand {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .login-brand-name {
+    font-family: var(--serif);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 1px;
+  }
+  .login-brand-name em { font-style: italic; color: var(--gold-hi); }
+  .login-brand-rule {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .login-brand-rule span {
+    height: 1px; width: 48px;
+    background: linear-gradient(90deg, transparent, var(--gold-lo));
+  }
+  .login-brand-rule span:last-child {
+    background: linear-gradient(90deg, var(--gold-lo), transparent);
+  }
+  .login-brand-rule i { color: var(--gold-lo); font-size: 6px; }
+
+  .login-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  /* corner cut */
+  .login-card::before {
+    content: '';
+    position: absolute; top: 0; right: 0;
+    width: 18px; height: 18px;
+    background: var(--bg);
+    clip-path: polygon(100% 0, 0 0, 100% 100%);
+  }
+
+  .login-card-head {
+    padding: 28px 32px 0;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 20px;
+  }
+  .login-card-title {
+    font-family: var(--orb);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 4px;
+  }
+  .login-card-sub {
+    font-family: var(--exo);
+    font-size: 12px;
+    font-weight: 300;
+    color: var(--silver);
+    letter-spacing: .5px;
+  }
+
+  .login-card-body { padding: 28px 32px; }
+
+  /* alerts */
+  .alert-dark-info, .alert-dark-error {
+    font-family: var(--exo);
+    font-size: 11px;
+    font-weight: 300;
+    letter-spacing: .5px;
+    padding: 10px 14px;
+    margin-bottom: 20px;
+    border-left: 2px solid;
+  }
+  .alert-dark-info { background: rgba(184,134,58,.08); border-color: var(--gold); color: var(--text); }
+  .alert-dark-error { background: rgba(208,38,60,.08); border-color: #d0263c; color: #f0a0a8; }
+
+  /* form fields */
+  .field-group { margin-bottom: 16px; }
+  .field-label {
+    font-family: var(--orb);
+    font-size: 7px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--silver);
+    display: block;
+    margin-bottom: 7px;
+  }
+  .field-input {
+    width: 100%;
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    outline: none;
+    font-family: var(--exo);
+    font-size: 12px;
+    font-weight: 300;
+    letter-spacing: .5px;
+    color: var(--text);
+    padding: 11px 14px;
+    transition: border-color .25s;
+    border-radius: 0 !important;
+  }
+  .field-input:focus { border-color: var(--gold-lo); }
+  .field-input::placeholder { color: var(--silver); }
+
+  /* forgot link */
+  .forgot-link {
+    font-family: var(--orb);
+    font-size: 7px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold-lo);
+    text-decoration: none;
+    float: right;
+    transition: color .2s;
+  }
+  .forgot-link:hover { color: var(--gold-hi); }
+
+  /* submit button */
+  .btn-login {
+    width: 100%;
+    background: var(--gold);
+    border: none;
+    font-family: var(--orb);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--bg);
+    padding: 13px;
+    cursor: pointer;
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+    transition: filter .25s, box-shadow .25s;
+    margin-top: 8px;
+  }
+  .btn-login:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 0 20px rgba(184,134,58,.3);
+  }
+
+  /* divider */
+  .login-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .login-divider span {
+    flex: 1; height: 1px;
+    background: var(--border);
+  }
+  .login-divider p {
+    font-family: var(--orb);
+    font-size: 7px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--silver);
+    white-space: nowrap;
+  }
+
+  /* register link */
+  .register-link {
+    text-align: center;
+    margin-top: 20px;
+  }
+  .register-link p {
+    font-family: var(--exo);
+    font-size: 12px;
+    font-weight: 300;
+    color: var(--silver);
+    letter-spacing: .3px;
+  }
+  .register-link a {
+    color: var(--gold);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color .2s;
+  }
+  .register-link a:hover { color: var(--gold-hi); }
+</style>
+
+
+<section class="login-page">
+
+  {% if request.GET.command == 'verification' %}
+
+  <!-- ── VERIFICATION MESSAGE ── -->
+  <div class="verify-box">
+    <i class="fas fa-envelope-open-text"></i>
+    <div class="verify-title">Check Your Inbox</div>
+    <p class="verify-msg">
+      Thank you for registering with us.<br>
+      We have sent a verification email to<br>
+      <span class="verify-email">{{ request.GET.email }}</span>
+    </p>
+    <a href="{% url 'login' %}" class="verify-login">
+      <i class="fas fa-sign-in-alt" style="margin-right:6px;"></i>Already Verified? Sign In
+    </a>
+  </div>
+
+  {% else %}
+
+  <!-- ── LOGIN FORM ── -->
+  <div class="login-wrap">
+
+    <!-- brand mark -->
+    <div class="login-brand">
+      <div class="login-brand-name">Chronos<em>&amp;</em>Co.</div>
+      <div class="login-brand-rule">
+        <span></span>
+        <i class="fas fa-circle"></i>
+        <span></span>
+      </div>
+    </div>
+
+    <div class="login-card">
+
+      <div class="login-card-head">
+        <div class="login-card-title">// Sign In</div>
+        <div class="login-card-sub">Welcome back — access your account</div>
+      </div>
+
+      <div class="login-card-body">
+
+        {% include 'alert.html' %}
+
+        <form action="{% url 'login' %}" method="POST">
+          {% csrf_token %}
+
+          <div class="field-group">
+            <label class="field-label">Email Address</label>
+            <input type="email" class="field-input" placeholder="you@example.com" name="email" required>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Password</label>
+            <input type="password" class="field-input" placeholder="••••••••" name="password" required>
+          </div>
+
+          <div class="field-group" style="margin-top:-4px;">
+            <a href="#" class="forgot-link">Forgot password?</a>
+            <div style="clear:both;"></div>
+          </div>
+
+          <button type="submit" class="btn-login">
+            <i class="fas fa-sign-in-alt" style="margin-right:7px;"></i>Sign In
+          </button>
+        </form>
+
+        <div class="login-divider">
+          <span></span>
+          <p>New to Chronos</p>
+          <span></span>
+        </div>
+
+        <div class="register-link">
+          <p>Don't have an account? <a href="{% url 'register' %}">Create one →</a></p>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  {% endif %}
+
+</section>
+
+{% endblock %}

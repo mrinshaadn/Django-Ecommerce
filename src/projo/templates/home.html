@@ -1,0 +1,509 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Chronos & Co. | Fine Timepieces{% endblock %}
+
+{% block content %}
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Exo+2:wght@200;300;400;500&display=swap');
+
+:root {
+  --void:      #ffffff;
+  --deep:      #f7f5f0;
+  --panel:     #ffffff;
+  --gold:      #b8863a;
+  --gold-hi:   #d4a84e;
+  --gold-lo:   #8a6428;
+  --gold-glow: rgba(184,134,58,0.10);
+  --gold-edge: rgba(184,134,58,0.30);
+  --ink:       #1a1208;
+  --silver:    #9a9080;
+  --cream:     #faf7f2;
+  --border:    rgba(184,134,58,0.15);
+  --red:       #d0263c;
+  --orb:       'Orbitron', sans-serif;
+  --serif:     'Cormorant Garamond', serif;
+  --exo:       'Exo 2', sans-serif;
+  --ease:      cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+/* full card click overlay */
+.prod-card { cursor: pointer; }
+.card-link-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: block;
+}
+/* elements that need to stay above the overlay */
+.prod-badge,
+.hc,
+.prod-hud { z-index: 11; }
+.marquee-band {
+  background: #0e0a04;
+  overflow: hidden;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+.marquee-track {
+  display: flex;
+  gap: 60px;
+  white-space: nowrap;
+  animation: marquee 26s linear infinite;
+}
+.marquee-track span {
+  font-family: var(--exo);
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #8a7a5a;
+}
+.marquee-track span i {
+  margin: 0 8px; font-size: 4px;
+  vertical-align: middle; color: var(--gold); opacity: .6;
+}
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ── PAGE WRAPPER ── */
+.products-page {
+  background: var(--cream);
+  padding: 64px 0 88px;
+}
+
+/* ── SECTION HEADER ── */
+.page-head {
+  text-align: center;
+  margin-bottom: 52px;
+  position: relative;
+}
+.page-head-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--orb);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--gold-lo);
+  margin-bottom: 14px;
+}
+.page-head-eyebrow::before,
+.page-head-eyebrow::after {
+  content: ''; display: block;
+  width: 40px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-lo));
+}
+.page-head-eyebrow::after {
+  background: linear-gradient(90deg, var(--gold-lo), transparent);
+}
+.page-head-title {
+  font-family: var(--serif);
+  font-size: clamp(36px, 5vw, 58px);
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.05;
+  margin-bottom: 0;
+}
+.page-head-title em {
+  font-style: italic;
+  color: var(--gold);
+}
+.page-head-rule {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+.page-head-rule span {
+  height: 1px; width: 60px;
+  background: linear-gradient(90deg, transparent, var(--gold-lo));
+}
+.page-head-rule span:last-child {
+  background: linear-gradient(90deg, var(--gold-lo), transparent);
+}
+.page-head-rule i { color: var(--gold); font-size: 7px; }
+
+/* ── TOOLBAR ── */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 36px;
+  padding: 12px 18px;
+  background: #fff;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 12px var(--gold-glow);
+  position: relative;
+}
+.toolbar::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-lo) 40%, var(--gold-lo) 60%, transparent);
+  opacity: .35;
+}
+.count-label {
+  font-family: var(--exo);
+  font-size: 11px; font-weight: 300;
+  color: var(--silver); letter-spacing: .5px;
+}
+.count-label strong {
+  font-family: var(--orb);
+  font-size: 20px; font-weight: 700;
+  color: var(--gold); margin-right: 5px;
+  vertical-align: middle;
+}
+.filter-pills { display: flex; gap: 5px; }
+.filter-pill {
+  font-family: var(--orb);
+  font-size: 7px; font-weight: 600;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--silver); background: #f7f3ec;
+  border: 1px solid var(--border);
+  padding: 7px 14px; cursor: pointer;
+  text-decoration: none; display: inline-block;
+  transition: all .22s;
+  clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%);
+}
+.filter-pill:hover,
+.filter-pill.active {
+  border-color: var(--gold-edge);
+  color: var(--gold);
+  background: var(--gold-glow);
+}
+
+/* ── PRODUCT CARD ── */
+.prod-card {
+  background: #fff;
+  border: 1px solid rgba(184,134,58,.13);
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+  transition: box-shadow .38s var(--ease), transform .38s var(--ease), border-color .38s;
+  animation: cardIn .55s var(--ease) both;
+  height: 100%;
+}
+/* corner cut */
+.prod-card::before {
+  content: '';
+  position: absolute; top: 0; right: 0;
+  width: 16px; height: 16px;
+  background: var(--deep);
+  clip-path: polygon(100% 0, 0 0, 100% 100%);
+  z-index: 4; transition: background .35s;
+}
+.prod-card:hover::before { background: #ede8df; }
+.prod-card:hover {
+  box-shadow: 0 12px 36px rgba(184,134,58,.14), 0 2px 8px rgba(0,0,0,.05);
+  transform: translateY(-6px);
+  border-color: var(--gold-edge);
+}
+
+/* gold scan sweep */
+.prod-card::after {
+  content: '';
+  position: absolute; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-hi), transparent);
+  top: -1px; opacity: 0;
+  transition: top .45s var(--ease), opacity .4s;
+  z-index: 5; pointer-events: none;
+}
+.prod-card:hover::after { top: 100%; opacity: 1; }
+
+/* stagger */
+.p-col:nth-child(1) .prod-card { animation-delay:.04s }
+.p-col:nth-child(2) .prod-card { animation-delay:.09s }
+.p-col:nth-child(3) .prod-card { animation-delay:.14s }
+.p-col:nth-child(4) .prod-card { animation-delay:.19s }
+.p-col:nth-child(5) .prod-card { animation-delay:.24s }
+.p-col:nth-child(6) .prod-card { animation-delay:.29s }
+.p-col:nth-child(7) .prod-card { animation-delay:.34s }
+.p-col:nth-child(8) .prod-card { animation-delay:.39s }
+@keyframes cardIn {
+  from { opacity:0; transform:translateY(26px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* image */
+.prod-img-wrap {
+  position: relative; overflow: hidden;
+  background: #f2ede4;
+  aspect-ratio: 4 / 3;
+}
+.prod-img-wrap img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform .55s var(--ease), filter .4s;
+  filter: brightness(.97) saturate(.95);
+}
+.prod-card:hover .prod-img-wrap img {
+  transform: scale(1.07);
+  filter: brightness(1.02) saturate(1.05);
+}
+
+/* HUD overlay */
+.prod-hud {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(20,12,0,.70) 0%, rgba(20,12,0,.08) 55%, transparent 100%);
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 18px; opacity: 0; transition: opacity .3s; z-index: 2;
+}
+.prod-card:hover .prod-hud { opacity: 1; }
+.hud-actions {
+  display: flex; gap: 6px;
+  transform: translateY(10px);
+  transition: transform .3s var(--ease);
+}
+.prod-card:hover .hud-actions { transform: translateY(0); }
+.hud-view {
+  flex: 1;
+  font-family: var(--orb); font-size: 7px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--ink); background: var(--gold);
+  border: none; padding: 10px 8px;
+  text-decoration: none; text-align: center; display: block;
+  transition: filter .2s;
+}
+.hud-view:hover { filter: brightness(1.1); color: var(--ink); }
+
+/* HUD corner brackets */
+.hc {
+  position: absolute; width: 10px; height: 10px;
+  border-color: var(--gold-edge); border-style: solid; border-width: 0;
+  opacity: 0; transition: opacity .3s; z-index: 3;
+}
+.hc.tl { top: 8px; left: 8px; border-top-width: 1.5px; border-left-width: 1.5px; }
+.hc.br { bottom: 8px; right: 8px; border-bottom-width: 1.5px; border-right-width: 1.5px; }
+.prod-card:hover .hc { opacity: 1; }
+
+/* badge */
+.prod-badge {
+  position: absolute; top: 10px; left: 0; z-index: 4;
+  font-family: var(--orb); font-size: 6.5px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  background: var(--gold); color: var(--ink);
+  padding: 4px 10px 4px 8px;
+  clip-path: polygon(0 0, 100% 0, 93% 100%, 0 100%);
+}
+
+/* wishlist */
+.wish-btn {
+  position: absolute; top: 10px; right: 20px; z-index: 4;
+  width: 30px; height: 30px;
+  background: rgba(255,255,255,.90); border: 1px solid rgba(184,134,58,.18);
+  display: flex; align-items: center; justify-content: center;
+  color: #ccc; font-size: 12px; text-decoration: none;
+  transition: color .2s, border-color .2s;
+}
+.wish-btn:hover { color: var(--red); border-color: var(--red); }
+
+/* card body */
+.prod-body {
+  padding: 16px 18px 12px;
+  border-top: 1px solid rgba(184,134,58,.10);
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  text-align: center;
+}
+.prod-meta {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; margin-bottom: 5px;
+}
+.prod-brand {
+  font-family: var(--orb); font-size: 6.5px; font-weight: 600;
+  letter-spacing: 3.5px; text-transform: uppercase;
+  color: var(--gold);
+}
+.prod-id {
+  font-family: var(--orb); font-size: 6.5px;
+  color: #ccc; letter-spacing: 1px;
+}
+.prod-name {
+  font-family: var(--serif); font-size: 17px; font-weight: 600;
+  color: var(--ink); text-decoration: none;
+  line-height: 1.25; margin-bottom: 10px;
+  transition: color .2s; letter-spacing: .3px;
+  display: -webkit-box; -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical; overflow: hidden;
+  width: 100%;
+}
+.prod-name:hover { color: var(--gold); }
+
+.prod-sep {
+  width: 28px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-lo), transparent);
+  margin-bottom: 12px;
+}
+.prod-price-row {
+  display: flex; align-items: baseline;
+  justify-content: center; gap: 10px;
+  margin-top: auto;
+}
+.price-old {
+  font-family: var(--exo); font-size: 11px;
+  color: #ccc; text-decoration: line-through;
+}
+.price-now {
+  font-family: var(--serif); font-size: 22px; font-weight: 700;
+  color: var(--ink); line-height: 1;
+}
+.savings-tag {
+  margin-top: 7px;
+  font-family: var(--exo); font-size: 9px; font-weight: 500;
+  letter-spacing: .5px; color: #3a9e5f;
+  background: rgba(58,158,95,.08); padding: 3px 10px;
+  display: inline-block;
+}
+
+/* ── EMPTY ── */
+.empty-state { text-align: center; padding: 80px 20px; }
+.empty-state i {
+  font-size: 44px; color: var(--gold-lo); opacity: .3;
+  display: block; margin-bottom: 18px;
+}
+.empty-state p {
+  font-family: var(--serif); font-style: italic;
+  font-size: 20px; color: var(--silver);
+}
+
+
+@media (max-width: 768px) {
+  .toolbar { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .filter-pills { flex-wrap: wrap; }
+}
+</style>
+
+
+<!-- ── MARQUEE ── -->
+<div class="marquee-band" aria-hidden="true">
+  <div class="marquee-track">
+    <span>Swiss Movement <i class="fas fa-circle"></i></span>
+    <span>Free Shipping ₹5,000+ <i class="fas fa-circle"></i></span>
+    <span>2-Year Warranty <i class="fas fa-circle"></i></span>
+    <span>Certified Authentic <i class="fas fa-circle"></i></span>
+    <span>New Arrivals Weekly <i class="fas fa-circle"></i></span>
+    <span>EMI Available <i class="fas fa-circle"></i></span>
+    <span>Swiss Movement <i class="fas fa-circle"></i></span>
+    <span>Free Shipping ₹5,000+ <i class="fas fa-circle"></i></span>
+    <span>2-Year Warranty <i class="fas fa-circle"></i></span>
+    <span>Certified Authentic <i class="fas fa-circle"></i></span>
+    <span>New Arrivals Weekly <i class="fas fa-circle"></i></span>
+    <span>EMI Available <i class="fas fa-circle"></i></span>
+  </div>
+</div>
+
+<!-- ── PRODUCTS ── -->
+<section class="products-page">
+  <div class="container">
+
+    <!-- Heading -->
+    <div class="page-head">
+      <div class="page-head-eyebrow">Handpicked For You</div>
+      <h1 class="page-head-title">Featured <em>Timepieces</em></h1>
+      <div class="page-head-rule">
+        <span></span>
+        <i class="fas fa-circle"></i>
+        <i class="fas fa-circle" style="font-size:11px;"></i>
+        <i class="fas fa-circle"></i>
+        <span></span>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="count-label">
+        <strong>{{ product_count }}</strong> featured picks
+      </div>
+      <a href="{% url 'store' %}" class="filter-pill active" style="text-decoration:none;">
+        View All &nbsp;→
+      </a>
+    </div>
+
+    <!-- Grid — 4 per row -->
+    <div class="row g-4">
+      {% for watch in products %}
+      <div class="col-xl-3 col-lg-4 col-md-6 p-col">
+        <article class="prod-card h-100">
+
+          <!-- entire card links to store -->
+          <a href="{% url 'store' %}" class="card-link-overlay" aria-label="Go to Store"></a>
+
+          <!-- image -->
+          <div class="prod-img-wrap">
+            {% if watch.images.first %}
+              <img src="{{ watch.images.first.image.url }}" alt="{{ watch.name }}">
+            {% else %}
+              <img src="https://via.placeholder.com/400x300/f2ede4/b8863a?text=⌚" alt="{{ watch.name }}">
+            {% endif %}
+
+            {% if watch.offer_price %}
+              <div class="prod-badge">◆ Special</div>
+            {% endif %}
+
+            <!-- HUD corner brackets -->
+            <div class="hc tl"></div>
+            <div class="hc br"></div>
+
+            <!-- HUD overlay -->
+            <div class="prod-hud">
+              <div class="hud-actions">
+                <span class="hud-view">
+                  <i class="fas fa-store" style="margin-right:6px;font-size:9px;"></i>View in Store
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- body -->
+          <div class="prod-body">
+            <div class="prod-meta">
+              <span class="prod-brand">{{ watch.brand.name }}</span>
+              <span class="prod-id">#{{ watch.id|stringformat:"04d" }}</span>
+            </div>
+            <span class="prod-name">{{ watch.name }}</span>
+            <div class="prod-sep"></div>
+            <div class="prod-price-row">
+              {% if watch.offer_price %}
+                <span class="price-old">₹{{ watch.price }}</span>
+                <span class="price-now">₹{{ watch.offer_price }}</span>
+              {% else %}
+                <span class="price-now">₹{{ watch.price }}</span>
+              {% endif %}
+            </div>
+            {% if watch.offer_price %}
+              <span class="savings-tag">You save ₹{{ watch.price|add:"-"|add:watch.offer_price }}</span>
+            {% endif %}
+          </div>
+
+        </article>
+      </div>
+      {% empty %}
+        <div class="col-12">
+          <div class="empty-state">
+            <i class="fas fa-clock"></i>
+            <p>No timepieces available at the moment.</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Browse all CTA -->
+    {% if products %}
+    <div class="text-center mt-5 pt-4">
+      <a href="{% url 'store' %}" class="btn-gold">Browse Full Collection</a>
+    </div>
+    {% endif %}
+
+  </div>
+</section>
+
+
+{% endblock %}
