@@ -129,7 +129,9 @@ STATICFILES_DIRS = [
 ]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+SECRET_KEY = os.environ.get('SECRET_KEY')
+DEBUG = False
 from django.contrib.messages import constants as messages
 
 MESSAGE_TAGS = {
