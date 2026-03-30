@@ -1,8 +1,11 @@
-gunicorn==25.3.0x
+asgiref==3.11.1
+Django==6.0.3
+gunicorn==25.3.0
 numpy==2.3.4
 packaging==26.0
 pandas==2.3.3
 python-dateutil==2.9.0.post0
 pytz==2025.2
 six==1.17.0
+sqlparse==0.5.5
 tzdata==2025.2
